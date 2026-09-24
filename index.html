@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Moonbox · 月饼信箱</title>
+<style>
+:root{--bg1:#10162d;--bg2:#25172c;--bg3:#3c2630;--gold:#d6a956;--gold2:#ffe8a3;--paper:#fff5dc;--ink:#4b3028}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;color:#fff6df;font-family:"Noto Serif SC","Songti SC",serif;background:radial-gradient(circle at 78% 14%,#fff3b0 0 4.8%,#c99a51 5.5%,transparent 11%),linear-gradient(var(--bg1),var(--bg2) 65%,var(--bg3))}
+.stars{position:fixed;inset:0;pointer-events:none;opacity:.22;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:64px 64px}
+.wrap{max-width:820px;margin:auto;padding:28px 18px 70px}.card{background:#241b2bd9;border:1px solid #e7c58455;border-radius:24px;padding:26px;box-shadow:0 18px 60px #0008;backdrop-filter:blur(8px)}
+h1{font-size:clamp(30px,7vw,50px);margin:.15em 0;color:var(--gold2)}h2{color:#ffe4a0}p{line-height:1.85}.sub{opacity:.82}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:680px){.grid{grid-template-columns:1fr}}
+label{display:block;font-size:14px;opacity:.9;margin:10px 0 6px}input,textarea{width:100%;border:1px solid #f0d89955;background:#ffffff0b;color:#fff6df;padding:12px 14px;border-radius:14px;font:inherit;outline:none}
+textarea{min-height:180px;resize:vertical;line-height:1.7}.btn{border:0;border-radius:999px;padding:13px 22px;margin:8px 8px 8px 0;background:var(--gold);color:#25172c;font-weight:800;font-size:16px;cursor:pointer}.btn.alt{background:#fff0c9}.btn.ghost{background:#ffffff12;color:#fff6df;border:1px solid #ffffff30}
+.tiny{font-size:13px;opacity:.62}.stage{text-align:center}.moon{font-size:72px}.bowl{width:190px;height:90px;border-radius:12px 12px 90px 90px;background:linear-gradient(#f5dca5,#b98748);margin:22px auto;box-shadow:inset 0 -12px 20px #80552566}
+.dough{width:120px;height:75px;background:#e5b86b;border-radius:50%;margin:15px auto;box-shadow:inset -12px -10px 20px #a86f3655}.mooncake{width:190px;height:190px;border-radius:50%;margin:25px auto;background:radial-gradient(circle,#e5ad4e,#a86427);border:12px ridge #d7953e;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;font-size:28px;font-weight:900;color:#6d321e;box-shadow:0 10px 40px #0007;word-break:break-word}
+.bite1{clip-path:polygon(0 0,100% 0,100% 28%,87% 30%,92% 41%,82% 48%,92% 58%,85% 68%,100% 73%,100% 100%,0 100%)}.bite2{clip-path:polygon(0 0,100% 0,100% 18%,82% 22%,88% 35%,74% 45%,88% 58%,76% 69%,94% 80%,100% 100%,0 100%)}
+.progress{height:12px;background:#ffffff18;border-radius:10px;overflow:hidden;margin:20px}.bar{height:100%;width:0;background:var(--gold);transition:width .6s}.toast{min-height:30px;color:#ffe6a6;font-style:italic}
+.letter{background:var(--paper);color:var(--ink);padding:28px;border-radius:8px;line-height:1.95;text-align:left;box-shadow:0 10px 40px #0007;transform:rotate(-.35deg);white-space:pre-wrap;word-break:break-word}
+.reveal-meta{background:#ffffff0c;border:1px solid #ffffff1c;border-radius:16px;padding:16px;margin:16px 0;text-align:left}.linkbox{margin-top:18px;padding:16px;border-radius:14px;background:#ffffff0c;border:1px solid #ffffff20;word-break:break-all;text-align:left}
+</style>
+</head>
+<body>
+<div class="stars"></div><main class="wrap"><section class="card" id="app"></section></main>
+<script>
+const app=document.getElementById('app');
+function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
+function clear(){app.replaceChildren()} function button(text,fn,cls='btn'){const b=el('button',cls,text);b.onclick=fn;return b}
+function field(labelText,id,type='input'){const box=el('div');const lab=el('label','',labelText);lab.htmlFor=id;box.appendChild(lab);const node=type==='textarea'?el('textarea'):el('input');node.id=id;box.appendChild(node);return{box,node}}
+function enc(o){const b=new TextEncoder().encode(JSON.stringify(o));let s='';b.forEach(x=>s+=String.fromCharCode(x));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function dec(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const bin=atob(s);return JSON.parse(new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0))))}
+function val(n,max){n=(n||'').trim();return n.length>max?n.slice(0,max):n}
+function gift(){if(!location.hash.startsWith('#gift='))return null;try{return dec(location.hash.slice(6))}catch(e){return null}}
+
+function maker(){
+ clear();app.className='card';
+ app.append(el('div','moon','🌕'),el('h1','','Moonbox · 月饼信箱'),el('p','sub',''));
+ const g1=el('div','grid'),r=field('收件人名字','recipient'),s=field('你的署名','sender');g1.append(r.box,s.box);app.appendChild(g1);
+ const l=field('想藏进月饼里的话','letter','textarea');app.appendChild(l.box);
+ const g2=el('div','grid'),f=field('月饼馅料','filling'),m=field('模具文字','mold');g2.append(f.box,m.box);app.appendChild(g2);
+ const rs=field('为什么选这个馅（可选）','reason','textarea');rs.node.style.minHeight='110px';app.appendChild(rs.box);
+ app.appendChild(el('p','tiny',''));
+ app.appendChild(button('预览收礼流程',()=>{
+   const d={v:1,recipient:val(r.node.value,80),sender:val(s.node.value,80),letter:val(l.node.value,10000),filling:val(f.node.value,120),mold:val(m.node.value,24),reason:val(rs.node.value,2000)};
+   if(!d.letter||!d.filling||!d.mold){alert('请填写必填项。');return}
+   preview(d,{recipient:r.node.value,sender:s.node.value,letter:l.node.value,filling:f.node.value,mold:m.node.value,reason:rs.node.value});
+ }));
+}
+
+let previewMode=false;
+let previewData=null;
+
+function preview(d,raw){
+ previewMode=true;
+ previewData=d;
+ st={step:0,mix:0,bites:0};
+ recv(d);
+}
+function generated(url){
+ clear();app.className='card';app.append(el('div','moon','🌕'),el('h1','','礼物链接已生成'),el('p','sub',''));
+ const box=el('div','linkbox',url);app.appendChild(box);
+ app.appendChild(button('复制链接',async()=>{try{await navigator.clipboard.writeText(url);alert('已复制。')}catch(e){prompt('复制这个链接：',url)}}));
+ app.appendChild(button('预览收礼页',()=>location.href=url,'btn alt'));app.appendChild(button('返回修改',maker,'btn ghost'));
+ app.appendChild(el('p','tiny',''));
+}
+let st={step:0,mix:0,bites:0};
+function recv(d){
+ clear();app.className='card stage';const who=d.recipient||'你';
+ if(st.step===0){app.append(el('div','moon','🌕'),el('h1','','一枚月饼'),el('p','sub',who+'，这里有一枚还没做完的月饼。'));app.appendChild(button('开始做月饼',()=>{st.step=1;recv(d)}));return}
+ if(st.step===1){app.append(el('h2','','第一步 · 做月饼皮'),el('p','','把材料慢慢揉到一起。'),el('div','bowl'),el('div','toast',st.mix<4?'继续揉。':'面团好了。'));app.appendChild(st.mix<4?button('揉一揉',()=>{st.mix++;recv(d)}):button('去包馅',()=>{st.step=2;recv(d)}));return}
+ if(st.step===2){
+   app.append(el('h2','','第二步 · 包馅'),el('div','dough'),el('p','','今天的馅是：'+d.filling));
+   app.appendChild(button('把馅包进去',()=>{st.step=25;recv(d)}));
+   return
+ }
+ if(st.step===25){
+   app.appendChild(el('h2','','……'));
+   const msg=d.sender ? d.sender+'刚才好像趁你没注意，做了什么。' : '刚才好像有人趁你没注意，做了什么。';
+   app.appendChild(el('div','toast',msg));
+   app.appendChild(button('继续',()=>{st.step=3;recv(d)}));
+   return
+ }
+ if(st.step===3){
+   app.append(el('h2','','第三步 · 压模'),el('p','','把月饼放进模具。'));
+   const mc=el('div','mooncake',d.mold);mc.style.width='145px';mc.style.height='145px';app.appendChild(mc);
+   app.appendChild(button('咔哒——压下去',()=>{st.step=4;recv(d);bake(d)}));
+   return
+ }
+ if(st.step===4){app.append(el('h2','','第四步 · 烤月饼'),el('p','','180°C · 月饼正在慢慢变成金黄色。'));const p=el('div','progress'),b=el('div','bar');b.id='bar';p.appendChild(b);app.appendChild(p);const tt=el('div','toast','烤箱里很安静。');tt.id='btxt';app.appendChild(tt);return}
+ if(st.step===5){app.append(el('h2','','叮——做好了。'),el('div','mooncake',d.mold));const meta=el('div','reveal-meta');meta.append(el('div','','馅料：'+d.filling),el('div','','模具：'+d.mold));app.append(meta,button('吃月饼',()=>eat(d)));return}
+ if(st.step===6){app.append(el('h2','',st.bites<2?'继续吃。':'等等。'),el('div','mooncake bite'+Math.min(st.bites,2),d.mold),el('p','sub',st.bites<2?'再吃一口。':'月饼里好像藏着什么。'));app.appendChild(st.bites<2?button('再吃一口',()=>eat(d)):button('把它拿出来',()=>{st.step=7;recv(d)}));return}
+ if(st.step===7){
+   const lt=el('div','letter');
+   if(d.recipient)lt.appendChild(el('p','',d.recipient));
+   lt.appendChild(el('p','',d.letter));
+   if(d.sender)lt.appendChild(el('p','',d.sender));
+   app.appendChild(lt);
+   if(d.reason){
+     const rr=el('div','reveal-meta');
+     rr.appendChild(el('p','',d.reason));
+     app.appendChild(rr);
+   }
+   if(previewMode){
+     app.appendChild(button('生成链接',()=>{
+       const url=location.origin+location.pathname+'#gift='+enc(d);
+       previewMode=false;
+       generated(url);
+     }));
+     app.appendChild(button('返回填写',()=>{previewMode=false;maker()},'btn ghost'));
+   }else{
+     app.appendChild(button('重新做一遍',()=>{st={step:0,mix:0,bites:0};recv(d)},'btn ghost'));
+   }
+ }
+}
+function bake(d){setTimeout(()=>{const b=document.getElementById('bar');if(!b)return;b.style.width='38%';setTimeout(()=>{b.style.width='72%';const t=document.getElementById('btxt');if(t)t.textContent='快好了。';setTimeout(()=>{b.style.width='100%';setTimeout(()=>{st.step=5;recv(d)},650)},700)},700)},250)}
+function eat(d){st.bites++;st.step=6;recv(d)}
+const g=gift();if(g){previewMode=false;recv(g)}else maker();
+</script>
+</body></html>
