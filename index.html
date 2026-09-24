@@ -41,11 +41,20 @@ function maker(){
  const g2=el('div','grid'),f=field('月饼馅料','filling'),m=field('模具文字','mold');g2.append(f.box,m.box);app.appendChild(g2);
  const rs=field('为什么选这个馅（可选）','reason','textarea');rs.node.style.minHeight='110px';app.appendChild(rs.box);
  app.appendChild(el('p','tiny',''));
- app.appendChild(button('预览收礼流程',()=>{
+ function collectData(){
    const d={v:1,recipient:val(r.node.value,80),sender:val(s.node.value,80),letter:val(l.node.value,10000),filling:val(f.node.value,120),mold:val(m.node.value,24),reason:val(rs.node.value,2000)};
-   if(!d.letter||!d.filling||!d.mold){alert('请填写必填项。');return}
-   preview(d,{recipient:r.node.value,sender:s.node.value,letter:l.node.value,filling:f.node.value,mold:m.node.value,reason:rs.node.value});
+   if(!d.letter||!d.filling||!d.mold){alert('请填写必填项。');return null}
+   return d;
+ }
+ app.appendChild(button('直接生成链接',()=>{
+   const d=collectData(); if(!d)return;
+   const url=location.origin+location.pathname+'#gift='+enc(d);
+   generated(url);
  }));
+ app.appendChild(button('预览收礼流程',()=>{
+   const d=collectData(); if(!d)return;
+   preview(d);
+ },'btn alt'));
 }
 
 let previewMode=false;
@@ -61,7 +70,11 @@ function generated(url){
  clear();app.className='card';app.append(el('div','moon','🌕'),el('h1','','礼物链接已生成'),el('p','sub',''));
  const box=el('div','linkbox',url);app.appendChild(box);
  app.appendChild(button('复制链接',async()=>{try{await navigator.clipboard.writeText(url);alert('已复制。')}catch(e){prompt('复制这个链接：',url)}}));
- app.appendChild(button('预览收礼页',()=>location.href=url,'btn alt'));app.appendChild(button('返回修改',maker,'btn ghost'));
+ app.appendChild(button('预览收礼流程',()=>{
+   const data=dec(url.split('#gift=')[1]);
+   preview(data);
+ },'btn alt'));
+ app.appendChild(button('返回修改',maker,'btn ghost'));
  app.appendChild(el('p','tiny',''));
 }
 let st={step:0,mix:0,bites:0};
@@ -102,7 +115,7 @@ function recv(d){
      app.appendChild(rr);
    }
    if(previewMode){
-     app.appendChild(button('生成链接',()=>{
+     app.appendChild(button('生成礼物链接',()=>{
        const url=location.origin+location.pathname+'#gift='+enc(d);
        previewMode=false;
        generated(url);
