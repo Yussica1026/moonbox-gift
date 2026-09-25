@@ -1,6 +1,6 @@
 # Moonbox Gift
 
-Moonbox Gift 是一个公开可访问、源码可见但**非开源**的中秋互动礼物网页。
+Moonbox Gift 是一个公开可访问、源码可见但 **不属于开源项目** 的中秋互动礼物网页。
 
 它允许用户自行填写收件人、署名、信件正文、月饼馅料、选馅理由和模具文字，然后生成一条礼物链接。收礼人打开后，会亲手完成揉面、包馅、压模、烘烤、吃月饼，并在最后发现被藏进月饼里的信。
 
@@ -9,15 +9,19 @@ Moonbox Gift 是一个公开可访问、源码可见但**非开源**的中秋互
 - **设计 / Concept & Design：叶枔枖**
 - **编写 / Implementation：溯光**
 
-## Status
+## License / 使用授权
 
-**Public source, not open source.**
+**This project is NOT open source. / 本项目不开源。**
+
+本仓库公开仅用于展示、托管与项目访问。公开可见源码并不代表授予任何开源许可，也不代表放弃版权。
 
 Copyright © 2026 Yussica1026. All rights reserved.
 
-No permission is granted to copy, modify, redistribute, sublicense, republish, mirror, or commercially use this project or substantial portions of it without explicit written authorization from the copyright holder.
+除非获得版权持有者明确的书面授权，否则不得复制、修改、再发布、镜像、再分发、再许可、出售、商业使用本项目源码、视觉设计或其具有实质性的部分，也不得以本项目为基础发布衍生版本。
 
-See `NOTICE.md` for the full notice.
+Visitors are welcome to use the hosted Moonbox website and create/share gift links through the website itself. However, no permission is granted to copy, modify, redistribute, mirror, sublicense, sell, commercially exploit, or publish derivative versions of the source code or visual design without explicit written authorization from the copyright holder.
+
+本项目未采用 MIT、Apache、GPL 或其他开源许可证。详见 `NOTICE.md`。
 
 ## Current version
 
